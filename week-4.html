@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Task Manager</title>
+  <style>
+    /* Add some basic styling for better UI */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input[type="text"] {
+      width: 200px;
+      padding: 5px;
+    }
+    button {
+      padding: 5px 10px;
+      margin-left: 5px;
+    }
+    .task-item {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Task Manager</h1>
+  <input type="text" id="taskInput" placeholder="Add a new task">
+  <button onclick="addTask()">Add Task</button>
+  <div id="taskList"></div>
+
+  <script>
+    // Retrieve tasks from local storage
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    function displayTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+
+      tasks.forEach((task, index) => {
+        const taskItem = document.createElement('div');
+        taskItem.classList.add('task-item');
+
+        const checkBox = document.createElement('input');
+        checkBox.type = 'checkbox';
+        checkBox.checked = task.completed;
+        checkBox.addEventListener('change', () => {
+          tasks[index].completed = checkBox.checked;
+          saveTasks();
+        });
+
+        const taskText = document.createElement('span');
+        taskText.textContent = task.text;
+        if (task.completed) {
+          taskText.style.textDecoration = 'line-through';
+        }
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', () => {
+          const newText = prompt('Edit task:', task.text);
+         if (newText !== null) {
+            tasks[index].text = newText;
+            saveTasks();
+          }
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+        });
+
+        taskItem.appendChild(checkBox);
+        taskItem.appendChild(taskText);
+        taskItem.appendChild(editButton);
+        taskItem.appendChild(deleteButton);
+
+        taskList.appendChild(taskItem);
+      });
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      const text = taskInput.value.trim();
+      if (text !== '') {
+        tasks.push({ text: text, completed: false });
+        saveTasks();
+        taskInput.value = '';
+      }
+    }
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      displayTasks();
+    }
+    displayTasks();
+  </script>
+</body>
+</html>
